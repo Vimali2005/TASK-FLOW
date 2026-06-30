@@ -2,7 +2,6 @@
 
 A lightweight, no-dependency task manager built with vanilla HTML, CSS, and JavaScript. Add tasks, tag them by category, mark them done, filter the list, and keep track of progress — all in the browser, no backend required.
 
-🔗 **Live demo:** [taskflow.html](./taskflow.html)
 👩‍💻 **Built by:** [Vimali K](https://github.com/Vimali2005)
 
 ---
