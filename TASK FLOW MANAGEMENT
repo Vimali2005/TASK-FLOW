@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow — Personal Task Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #1a1b26;
+        --panel: #1f2030;
+        --line: #2a2b3d;
+        --text: #cbd0e0;
+        --dim: #5c6079;
+        --kw: #c792ea;
+        --str: #9ece6a;
+        --fn: #7aa2f7;
+        --num: #ff9e64;
+        --tag: #f7768e;
+        --cursor: #ffd23f;
+        --display: "Space Grotesk", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        min-height: 100vh;
+        padding: 30px 16px;
+      }
+      ::selection {
+        background: var(--kw);
+        color: #1a1b26;
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 26px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--str);
+      }
+      .brand h1 {
+        font-family: var(--display);
+        font-size: 24px;
+        color: #fff;
+      }
+      .brand .sub {
+        font-size: 11.5px;
+        color: var(--dim);
+        margin-top: 2px;
+      }
+      .stats {
+        display: flex;
+        gap: 18px;
+        font-size: 12px;
+        color: var(--dim);
+      }
+      .stats b {
+        color: var(--cursor);
+        font-family: var(--display);
+      }
+
+      .add-row {
+        display: flex;
+        gap: 10px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .add-row input[type="text"] {
+        flex: 1;
+        min-width: 150px;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 14px;
+        padding: 6px;
+      }
+      .add-row select {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12.5px;
+        border-radius: 6px;
+        padding: 8px 10px;
+        outline: none;
+      }
+      .add-row button {
+        background: var(--kw);
+        color: #1a1b26;
+        border: none;
+        border-radius: 6px;
+        font-weight: 700;
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 9px 18px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .add-row button:hover {
+        background: #d9aef5;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .filters button {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        color: var(--dim);
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 7px 14px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .filters button.active {
+        background: var(--fn);
+        color: #fff;
+        border-color: var(--fn);
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .task {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .task.done {
+        opacity: 0.5;
+      }
+      .task.done .ttext {
+        text-decoration: line-through;
+      }
+      .check {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--dim);
+        border-radius: 5px;
+        flex: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: transparent;
+      }
+      .task.done .check {
+        background: var(--str);
+        border-color: var(--str);
+        color: #1a1b26;
+      }
+      .ttext {
+        flex: 1;
+        font-size: 14px;
+        word-break: break-word;
+      }
+      .cat {
+        font-size: 10.5px;
+        padding: 3px 9px;
+        border-radius: 4px;
+        flex: none;
+      }
+      .cat.work {
+        background: rgba(122, 162, 247, 0.15);
+        color: var(--fn);
+      }
+      .cat.personal {
+        background: rgba(158, 206, 106, 0.15);
+        color: var(--str);
+      }
+      .cat.study {
+        background: rgba(255, 158, 100, 0.15);
+        color: var(--num);
+      }
+      .del {
+        background: none;
+        border: none;
+        color: var(--dim);
+        font-size: 16px;
+        cursor: pointer;
+        flex: none;
+        padding: 0 4px;
+      }
+      .del:hover {
+        color: var(--tag);
+      }
+
+      .empty {
+        text-align: center;
+        color: var(--dim);
+        font-size: 13px;
+        padding: 50px 0;
+      }
+
+      footer {
+        margin-top: 26px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--dim);
+      }
+      footer a {
+        color: var(--fn);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <span class="dot"></span>
+          <div>
+            <h1>TaskFlow</h1>
+            <div class="sub">personal task manager · built by Vimali K</div>
+          </div>
+        </div>
+        <div class="stats">
+          <span><b id="countTotal">0</b> total</span
+          ><span><b id="countDone">0</b> done</span>
+        </div>
+      </header>
+
+      <div class="add-row">
+        <input type="text" id="taskInput" placeholder="Add a new task..." />
+        <select id="catInput">
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="study">Study</option>
+        </select>
+        <button id="addBtn">+ Add</button>
+      </div>
+
+      <div class="filters">
+        <button class="active" data-filter="all">All</button>
+        <button data-filter="active">Active</button>
+        <button data-filter="done">Done</button>
+        <button data-filter="work">Work</button>
+        <button data-filter="personal">Personal</button>
+        <button data-filter="study">Study</button>
+      </div>
+
+      <div class="list" id="list"></div>
+      <div class="empty" id="emptyState" style="display: none">
+        No tasks here yet — add one above.
+      </div>
+
+      <footer>
+        TaskFlow — a project by Vimali K ·
+        <a href="https://github.com/Vimali2005" target="_blank"
+          >github.com/Vimali2005</a
+        >
+      </footer>
+    </div>
+
+    <script>
+      let tasks = [
+        {
+          id: 1,
+          text: "Finish HTML/CSS portfolio site",
+          cat: "work",
+          done: true,
+        },
+        {
+          id: 2,
+          text: "Practice Java OOP exercises",
+          cat: "study",
+          done: false,
+        },
+        { id: 3, text: "Submit internship report", cat: "work", done: false },
+      ];
+      let filter = "all";
+
+      const list = document.getElementById("list");
+      const input = document.getElementById("taskInput");
+      const catInput = document.getElementById("catInput");
+      const emptyState = document.getElementById("emptyState");
+
+      function render() {
+        let filtered = tasks.filter((t) => {
+          if (filter === "all") return true;
+          if (filter === "active") return !t.done;
+          if (filter === "done") return t.done;
+          return t.cat === filter;
+        });
+        list.innerHTML = "";
+        emptyState.style.display = filtered.length ? "none" : "block";
+        filtered.forEach((t) => {
+          const row = document.createElement("div");
+          row.className = "task" + (t.done ? " done" : "");
+          row.innerHTML = `
+        <div class="check" data-id="${t.id}">${t.done ? "✓" : ""}</div>
+        <div class="ttext">${t.text}</div>
+        <span class="cat ${t.cat}">${t.cat}</span>
+        <button class="del" data-id="${t.id}">✕</button>
+      `;
+          list.appendChild(row);
+        });
+        document.getElementById("countTotal").textContent = tasks.length;
+        document.getElementById("countDone").textContent = tasks.filter(
+          (t) => t.done,
+        ).length;
+      }
+
+      function addTask() {
+        const val = input.value.trim();
+        if (!val) return;
+        tasks.push({
+          id: Date.now(),
+          text: val,
+          cat: catInput.value,
+          done: false,
+        });
+        input.value = "";
+        render();
+      }
+
+      document.getElementById("addBtn").addEventListener("click", addTask);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addTask();
+      });
+
+      list.addEventListener("click", (e) => {
+        const id = Number(e.target.dataset.id);
+        if (!id) return;
+        if (e.target.classList.contains("check")) {
+          tasks = tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+          render();
+        }
+        if (e.target.classList.contains("del")) {
+          tasks = tasks.filter((t) => t.id !== id);
+          render();
+        }
+      });
+
+      document.querySelectorAll(".filters button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filters button")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          filter = btn.dataset.filter;
+          render();
+        });
+      });
+
+      render();
+    </script>
+  </body>
+</html>
